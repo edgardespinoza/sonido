@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SpeechToTextSimple</string>
+    <string name="title_activity_main">Speech_Activity</string>
+</resources>
