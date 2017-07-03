@@ -3,6 +3,7 @@ package speechtext.com.speechtotext;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -39,6 +40,8 @@ public class SpeechActivity extends AppCompatActivity
     //     private EditText contextEditText;
     private EditText dni;
     private EditText direccion;
+    private EditText telefono;
+    private EditText ubigeo;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -51,11 +54,15 @@ public class SpeechActivity extends AppCompatActivity
 //        contextEditText = (EditText) findViewById(R.id.contextEditText);
         dni = (EditText) findViewById(R.id.dni);
         direccion = (EditText) findViewById(R.id.direccion);
+        telefono = (EditText) findViewById(R.id.telefono);
+        ubigeo = (EditText) findViewById(R.id.ubigeo);
         agentPlatform = new AgentPlatform(this);
         initService();
 
-        //   aiService.startListening();
+       // aiService.startListening();
     }
+
+
 
     private void initService() {
 
@@ -106,9 +113,9 @@ public class SpeechActivity extends AppCompatActivity
                     iniciarAudio = false;
                     aiService.startListening();
                 }
-                /*else{
+                else{
                     startRecognition(null);
-                }*/
+                }
             }});
     }
 
@@ -176,9 +183,9 @@ public class SpeechActivity extends AppCompatActivity
             public void run() {
                 if (agentPlatform.getAgent().getCurrentEntry() != null)
                     textToSpeech(" por favor dime tu " + agentPlatform.getAgent().getCurrentEntry().getEntidadHablado());
-                /*else{
-                    textToSpeech("fin del ingreso por favor dí finalizar o modificar el nombre del campo");
-                }*/
+                 else{
+                    textToSpeech("fin del ingreso  o dí modificar el nombre del campo");
+                }
             }
         });
 
@@ -198,7 +205,17 @@ public class SpeechActivity extends AppCompatActivity
 
         if (direccion.getHint().toString().toUpperCase().contains(e.getEntidad())) {
             direccion.setText(e.getValor());
-            textToSpeech("TU Dirección es" + e.getValor());
+            textToSpeech("TU "+e.getEntidadHablado()+" es" + e.getValorHablado());
+        }
+
+        if (telefono.getHint().toString().toUpperCase().contains(e.getEntidad())) {
+            telefono.setText(e.getValor());
+            textToSpeech("TU "+e.getEntidadHablado()+" es" + e.getValorHablado());
+        }
+
+        if (ubigeo.getHint().toString().toUpperCase().contains(e.getEntidad())) {
+            ubigeo.setText(e.getValor());
+            textToSpeech("TU "+e.getEntidadHablado()+" es" + e.getValorHablado());
         }
 
 
@@ -312,6 +329,7 @@ public class SpeechActivity extends AppCompatActivity
 
                             @Override
                             public void onStart(String utteranceId) {
+                                Log.e("MainActivity", "Initilization init!");
                             }
                         });
                     } else {

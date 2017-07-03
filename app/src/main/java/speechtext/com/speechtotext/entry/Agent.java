@@ -110,7 +110,7 @@ public class Agent {
 
     private String getValue(String v, int start, int end) {
         int length = v.length();
-        if (length > 0 && length > end)
+        if (length > 0 && length > end && end>0)
             return v.substring(start, end);
         else return v;
     }

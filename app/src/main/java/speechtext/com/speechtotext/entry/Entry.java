@@ -39,7 +39,7 @@ public class Entry
         return valor;
     }
     public String getValorHablado(){
-        return tipo==TIPO_ENTERO? valor.replaceAll("(?<=\\d)(?=\\d)", " "):valor;
+        return tipo==TIPO_ENTERO && valor!=null? valor.replaceAll("(?<=\\d)(?=\\d)", " "):valor;
     }
 
     public void setValor(String valor) {
