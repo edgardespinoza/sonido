@@ -4,7 +4,6 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,39 +18,52 @@ public class AgentPlatform {
 
     private Agent agent;
 
-    public AgentPlatform(Context context){
+    public AgentPlatform(Context context) {
         createAgent(context);
     }
 
     public void createAgent(Context context) {
-        agent = new Agent();
+        setAgent(new Agent());
         createEntry(context);
         createIntent(context);
     }
 
     public void createEntry(Context context) {
         String[] file = readInput(context.getResources().openRawResource(R.raw.entry)).split("\n");
-        for (String patron : file ) {
-            if(!TextUtils.isEmpty(patron))
-              agent.getEntryList().add(Entry.getEntryToJson(patron));
+        for (String patron : file) {
+            if (!TextUtils.isEmpty(patron)) {
+                Entry e = Entry.getEntryToJson(patron);
+                getAgent().getEntryList().add(e);
+            }
         }
     }
 
     public void createIntent(Context context) {
         String[] file = readInput(context.getResources().openRawResource(R.raw.intent)).split("\n");
-        //TODO cambiar por json
-        for (String s : file) {
-            if (!TextUtils.isEmpty(s))
-                agent.getIntentList().add(new Intent(s));
+
+        for (String patron : file) {
+            if (!TextUtils.isEmpty(patron)){
+                Intent e = Intent.getEntryToJson(patron);
+                getAgent().getIntentList().add(e);
+            }
         }
     }
 
 
-    public Entry procesarCampo(String cadena){
-       Entry e =  agent.procesarEntry(cadena);
-        if(e!=null){
-            Intent i = agent.procesarIntent(cadena);
-            agent.procesarEntrywithIntent(e, i, cadena);
+    public Entry procesarCampo(String cadena) {
+        //obtenemos la entidad de la cadena
+        Entry e = getAgent().procesarEntry(cadena);
+
+        //OJO si no existe reemplazamos la entidad actual
+        if (e != null) {
+            getAgent().setCurrentEntry(e);
+        }else{
+            e =agent.getCurrentEntry();
+        }
+
+        if(e!=null) {
+            Intent i = getAgent().procesarIntent(cadena);
+            getAgent().procesarEntrywithIntent(e, i, cadena);
         }
         return e;
     }
@@ -69,5 +81,13 @@ public class AgentPlatform {
             e.printStackTrace();
         }
         return total.toString();
+    }
+
+    public Agent getAgent() {
+        return agent;
+    }
+
+    public void setAgent(Agent agent) {
+        this.agent = agent;
     }
 }

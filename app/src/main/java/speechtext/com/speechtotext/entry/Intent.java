@@ -1,21 +1,45 @@
 package speechtext.com.speechtotext.entry;
 
+import com.google.gson.Gson;
+
 /**
  * Created by eespinor on 20/06/2017.
  */
 
 public class Intent {
-    private String intencion;
+    public static final int BORRAR =1;
+    public static final int CAMBIAR =2;
+    public static final int INGRESAR =3;
+    private String accion;
+    private String alias;
+    private int tipo;
 
-    public Intent(String i){
-        intencion=i;
+    public static Intent getEntryToJson( String patron){
+        return (new Gson()).fromJson(patron, Intent.class);
     }
 
-    public String getIntencion() {
-        return intencion;
+
+    public String getAccion() {
+        return accion;
     }
 
-    public void setIntencion(String intencion) {
-        this.intencion = intencion;
+    public void setAccion(String accion) {
+        this.accion = accion;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public int getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(int tipo) {
+        this.tipo = tipo;
     }
 }

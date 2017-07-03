@@ -3,18 +3,21 @@ package speechtext.com.speechtotext;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import java.util.HashMap;
 
 import speechtext.com.speechtotext.entry.AgentPlatform;
 import speechtext.com.speechtotext.entry.Entry;
@@ -85,17 +88,28 @@ public class SpeechActivity extends AppCompatActivity
     }
 
     public void startRecognition(final View view) {
-
+        iniciarAudio = true;
         procesarAudio();
     }
 
-    private void procesarAudio(){
+    private boolean iniciarAudio;
+
+    private void procesarAudio() {
         procesarCamposVoz();
-        try {
-             Thread.sleep(2000);
-        } catch (Exception e) {
-        }
-        aiService.startListening();
+    }
+
+    private void findeHablar(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(iniciarAudio) {
+                    iniciarAudio = false;
+                    aiService.startListening();
+                }
+                /*else{
+                    startRecognition(null);
+                }*/
+            }});
     }
 
     public void stopRecognition(final View view) {
@@ -160,30 +174,31 @@ public class SpeechActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (TextUtils.isEmpty(dni.getText().toString()))
-                    textToSpeech("Buen día Edgard, por favor dime tu D N I");
-                else
-                    textToSpeech("Ahora por último ingresa tu dirección");
+                if (agentPlatform.getAgent().getCurrentEntry() != null)
+                    textToSpeech(" por favor dime tu " + agentPlatform.getAgent().getCurrentEntry().getEntidadHablado());
+                /*else{
+                    textToSpeech("fin del ingreso por favor dí finalizar o modificar el nombre del campo");
+                }*/
             }
         });
-
 
     }
 
     private void procesarCampos(String cad) {
         Entry e = agentPlatform.procesarCampo(cad);
         if (e == null) {
+            return;
+        }
+        ;
 
-        };
-
-        if (dni.getHint().toString().toUpperCase().contains(e.getEntidadPatron())) {
-            dni.setText(e.getValorEntidad());
-            textToSpeech("TU D N I es" + e.getValorEntidad().replaceAll("(?<=\\d)(?=\\d)", " "));
+        if (dni.getHint().toString().toUpperCase().contains(e.getEntidad())) {
+            dni.setText(e.getValor());
+            textToSpeech("TU "+e.getEntidadHablado()+" es" + e.getValorHablado());
         }
 
-        if (direccion.getHint().toString().toUpperCase().contains(e.getEntidadPatron())) {
-            direccion.setText(e.getValorEntidad());
-            textToSpeech("TU Dirección es" + e.getValorEntidad());
+        if (direccion.getHint().toString().toUpperCase().contains(e.getEntidad())) {
+            direccion.setText(e.getValor());
+            textToSpeech("TU Dirección es" + e.getValor());
         }
 
 
@@ -283,15 +298,41 @@ public class SpeechActivity extends AppCompatActivity
         if (textToSpeech == null) {
             textToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
                 @Override
-                public void onInit(int i) {
+                public void onInit(int status) {
+                    if (status == TextToSpeech.SUCCESS) {
+                        textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                            @Override
+                            public void onDone(String utteranceId) {
+                                findeHablar();
+                            }
 
+                            @Override
+                            public void onError(String utteranceId) {
+                            }
+
+                            @Override
+                            public void onStart(String utteranceId) {
+                            }
+                        });
+                    } else {
+                        Log.e("MainActivity", "Initilization Failed!");
+                    }
                 }
             });
         }
     }
 
+
+
     public void textToSpeech(final String text) {
-        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+         final String UTTERANCE_ID_ROW = "row";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, UTTERANCE_ID_ROW);
+        } else {
+            HashMap<String, String> myHashRender = new HashMap<>();
+            myHashRender.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, UTTERANCE_ID_ROW);
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, myHashRender);
+        }
     }
 
     @Override

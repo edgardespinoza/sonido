@@ -77,7 +77,19 @@
                     android:hint="ingrese dirección"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
+                <EditText
+                    android:id="@+id/telefono"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="ingrese Teléfono"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
+                <EditText
+                    android:id="@+id/ubigeo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="ingrese Teléfono"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
             </LinearLayout>
         </ScrollView>
